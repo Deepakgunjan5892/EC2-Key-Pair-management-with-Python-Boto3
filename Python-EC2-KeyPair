@@ -1,0 +1,26 @@
+# This is first python script to manage AWS environment
+
+import boto3
+keynm = 'ec2'
+private_key_file_name = 'd:/aws/ec2.pem'
+ec2 = boto3.client('ec2')
+response = (ec2.describe_key_pairs(
+    Filters=[
+        {
+            'Name': 'key-name',
+            'Values': [
+                keynm,
+            ]
+        },
+    ]
+)
+)
+key_ex = int(response.get('ResponseMetadata', [{}]).get('HTTPHeaders', [{}]).get('content-length'))
+if key_ex > 221:
+    print('Key Exist')
+else:
+    print('Key does not exist')
+    ec2 = boto3.resource('ec2')
+    key_pair = ec2.create_key_pair(KeyName=keynm)
+    with open(private_key_file_name, 'w') as pk_file:
+        pk_file.write(key_pair.key_material)
